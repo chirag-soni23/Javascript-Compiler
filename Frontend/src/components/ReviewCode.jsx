@@ -30,6 +30,30 @@ const ReviewCode = () => {
     }
   };
 
+  // Function to copy documentation to clipboard
+  const handleCopy = () => {
+    if (documentation) {
+      navigator.clipboard.writeText(documentation)
+        .then(() => alert("Documentation copied to clipboard"))
+        .catch((err) => alert("Failed to copy documentation: " + err));
+    } else {
+      alert("No documentation available to copy.");
+    }
+  };
+
+  // Function to download documentation as a .txt file
+  const handleDownload = () => {
+    if (documentation) {
+      const blob = new Blob([documentation], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "documentation.txt";
+      link.click();
+    } else {
+      alert("No documentation available to download.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-6">
       <h2 className="text-3xl font-bold mb-6 text-center">AI Code Review & Documentation</h2>
@@ -71,6 +95,22 @@ const ReviewCode = () => {
         ) : (
           <p className="text-gray-400 text-center">No documentation available. Click "Generate Documentation" to fetch it.</p>
         )}
+      </div>
+
+      {/* Buttons for Copy and Download */}
+      <div className="flex flex-wrap justify-center gap-3 mt-6">
+        <button
+          onClick={handleCopy}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Copy to Clipboard
+        </button>
+        <button
+          onClick={handleDownload}
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Download Documentation
+        </button>
       </div>
     </div>
   );
