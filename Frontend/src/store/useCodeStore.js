@@ -10,7 +10,8 @@ const useCodeStore = create((set) => ({
   theme: "vs-dark",
   fontSize: parseInt(localStorage.getItem(FONT_SIZE_KEY)) || 14,
   aiReview: "",
-  isLoadingReview: false, 
+  isLoadingReview: false,
+  savedCodes: [],
 
   setCode: (code) => set({ code }),
 
@@ -73,7 +74,6 @@ const useCodeStore = create((set) => ({
     try {
       const res = await axios.post(`${API_BASE_URL}/review`, { prompt: code });
 
-
       set({ aiReview: res.data.review || "No review available.", isLoadingReview: false });
     } catch (error) {
       console.error("Failed to get AI review:", error);
@@ -84,14 +84,54 @@ const useCodeStore = create((set) => ({
     }
   },
 
-
   saveCode: async () => {
     try {
       const { code, aiReview } = useCodeStore.getState();
-      await axios.post(`${API_BASE_URL}/save-code`, { code, review: aiReview });
+      const res = await axios.post(`${API_BASE_URL}/save-code`, { code, review: aiReview });
       alert("Code saved successfully!");
+      set((state) => ({ savedCodes: [...state.savedCodes, res.data] }));
     } catch (error) {
       console.error("Failed to save code:", error);
+    }
+  },
+
+  fetchSavedCodes: async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/code-review`);
+      set({ savedCodes: res.data });
+    } catch (error) {
+      console.error("Failed to fetch saved codes:", error);
+    }
+  },
+
+  deleteCode: async (id) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/code-review/${id}`);
+      set((state) => ({
+        savedCodes: state.savedCodes.filter((code) => code._id !== id),
+      }));
+      alert("Code deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete code:", error);
+    }
+  },
+
+  updateCode: async (id, updatedCode, updatedReview) => {
+    try {
+      const res = await axios.put(`${API_BASE_URL}/code-review/${id}`, {
+        code: updatedCode,
+        review: updatedReview,
+      });
+
+      set((state) => ({
+        savedCodes: state.savedCodes.map((code) =>
+          code._id === id ? res.data : code
+        ),
+      }));
+
+      alert("Code updated successfully!");
+    } catch (error) {
+      console.error("Failed to update code:", error);
     }
   },
 }));

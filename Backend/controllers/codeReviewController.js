@@ -1,23 +1,62 @@
-import CodeReview from "../models/codeReview.js";
+import CodeReview from "../models/CodeReview.js";
 
-// Code Save Karna
-export const saveCode = async (req, res) => {
+// ✅ Save Code Review
+export const saveCodeReview = async (req, res) => {
   try {
     const { code, review } = req.body;
-    const newCodeReview = new CodeReview({ code, review });
-    await newCodeReview.save();
-    res.status(201).json({ message: "Code saved successfully" });
+    const newReview = new CodeReview({ code, review });
+    await newReview.save();
+    res.status(201).json({ message: "Code saved successfully", newReview });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Failed to save code" });
   }
 };
 
-// Saved Codes Fetch Karna
-export const getSavedCodes = async (req, res) => {
+// ✅ Get All Saved Codes
+export const getAllCodeReviews = async (req, res) => {
   try {
-    const codes = await CodeReview.find().sort({ createdAt: -1 });
-    res.json(codes);
+    const reviews = await CodeReview.find().sort({ createdAt: -1 });
+    res.status(200).json(reviews);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Failed to fetch code reviews" });
+  }
+};
+
+// ✅ Edit (Update) Code Review
+export const updateCodeReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { code, review } = req.body;
+
+    const updatedReview = await CodeReview.findByIdAndUpdate(
+      id, 
+      { code, review }, 
+      { new: true }
+    );
+
+    if (!updatedReview) {
+      return res.status(404).json({ error: "Code review not found" });
+    }
+
+    res.status(200).json({ message: "Code updated successfully", updatedReview });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update code" });
+  }
+};
+
+// ✅ Delete Code Review
+export const deleteCodeReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedReview = await CodeReview.findByIdAndDelete(id);
+
+    if (!deletedReview) {
+      return res.status(404).json({ error: "Code review not found" });
+    }
+
+    res.status(200).json({ message: "Code deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete code" });
   }
 };

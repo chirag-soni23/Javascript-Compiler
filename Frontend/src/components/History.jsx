@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useCodeStore from "../store/useCodeStore";
 
 const History = () => {
   const [savedCodes, setSavedCodes] = useState([]);
   const navigate = useNavigate();
+  const { deleteCode } = useCodeStore();
 
   useEffect(() => {
     const fetchSavedCodes = async () => {
@@ -18,6 +20,18 @@ const History = () => {
 
     fetchSavedCodes();
   }, []);
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this code?");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteCode(id);
+      setSavedCodes((prevCodes) => prevCodes.filter((code) => code._id !== id));
+    } catch (error) {
+      console.error("Failed to delete code:", error);
+    }
+  };
 
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">
@@ -33,10 +47,17 @@ const History = () => {
         <p>No saved code found.</p>
       ) : (
         <ul className="space-y-4">
-          {savedCodes.map((code, index) => (
-            <li key={index} className="bg-gray-800 p-4 rounded border border-gray-700">
+          {savedCodes.map((code) => (
+            <li key={code._id} className="bg-gray-800 p-4 rounded border border-gray-700">
               <pre className="whitespace-pre-wrap">{code.code}</pre>
               <p className="text-gray-400 text-sm">Saved on: {new Date(code.createdAt).toLocaleString()}</p>
+
+              <button
+                onClick={() => handleDelete(code._id)}
+                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded mt-2"
+              >
+                Delete Code
+              </button>
             </li>
           ))}
         </ul>
