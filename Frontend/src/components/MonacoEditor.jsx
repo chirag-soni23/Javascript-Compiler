@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
@@ -20,6 +20,7 @@ const MonacoEditor = () => {
     decreaseFontSize,
     fetchTheme,
     saveCode,
+    saveHistory,
   } = useCodeStore();
 
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
@@ -48,6 +49,16 @@ const MonacoEditor = () => {
       </h1>
 
       <div className="flex flex-wrap items-center gap-3 justify-center mb-4">
+        {/* Save History Button */}
+        <div className="flex flex-col md:flex-row items-center gap-2">
+          <Link to={'/history'}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Save History
+          </Link>
+        </div>
+
+        {/* Theme Dropdown */}
         <div className="flex flex-col md:flex-row items-center gap-2">
           <label className="text-sm font-semibold">Theme:</label>
           <select
@@ -61,6 +72,7 @@ const MonacoEditor = () => {
           </select>
         </div>
 
+        {/* Font Size Controls */}
         <div className="flex flex-col md:flex-row items-center gap-2">
           <label className="text-sm font-semibold">Font Size:</label>
           <div className="flex space-x-2">
