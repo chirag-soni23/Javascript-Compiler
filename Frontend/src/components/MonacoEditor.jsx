@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import useCodeStore from "../store/useCodeStore";
 
 const MonacoEditor = () => {
+  const navigate = useNavigate();
   const { 
     code, setCode, output, runCode, clearOutput, 
-    theme, setTheme, fontSize, increaseFontSize, decreaseFontSize, fetchTheme 
+    theme, setTheme, fontSize, increaseFontSize, decreaseFontSize, fetchTheme, saveCode 
   } = useCodeStore();
 
   useEffect(() => {
@@ -71,6 +73,18 @@ const MonacoEditor = () => {
           className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded w-full"
         >
           Clear
+        </button>
+        <button 
+          onClick={() => navigate("/review")} 
+          className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded w-full"
+        >
+          Review Code
+        </button>
+        <button 
+          onClick={saveCode} 
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded w-full"
+        >
+          Save Code
         </button>
       </div>
     </div>

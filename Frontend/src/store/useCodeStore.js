@@ -5,10 +5,12 @@ const API_BASE_URL = "http://localhost:5000/api";
 const FONT_SIZE_KEY = "editorFontSize"; 
 
 const useCodeStore = create((set) => ({
-  code: "console.log('Hello, World!');",
+  code: "",
   output: "",
   theme: "vs-dark",
-  fontSize: parseInt(localStorage.getItem(FONT_SIZE_KEY)) || 14, 
+  fontSize: parseInt(localStorage.getItem(FONT_SIZE_KEY)) || 14,
+  aiReview: "",
+  isLoadingReview: false, // Review loading state
 
   setCode: (code) => set({ code }),
 
@@ -31,7 +33,7 @@ const useCodeStore = create((set) => ({
       const res = await axios.get(`${API_BASE_URL}/theme`);
       if (res.data.theme) set({ theme: res.data.theme });
     } catch (error) {
-      console.error("Failed to fetch theme", error);
+      console.error("Failed to fetch theme:", error);
     }
   },
 
@@ -40,7 +42,7 @@ const useCodeStore = create((set) => ({
     try {
       await axios.post(`${API_BASE_URL}/theme`, { theme });
     } catch (error) {
-      console.error("Failed to update theme", error);
+      console.error("Failed to update theme:", error);
     }
   },
 
@@ -57,6 +59,41 @@ const useCodeStore = create((set) => ({
     }),
 
   clearOutput: () => set({ output: "" }),
+
+  reviewCode: async () => {
+    const { code } = useCodeStore.getState();
+
+    if (!code.trim()) {
+      set({ aiReview: "Error: No code provided for review." });
+      return;
+    }
+
+    set({ aiReview: "Reviewing code...", isLoadingReview: true });
+
+    try {
+      const res = await axios.post(`${API_BASE_URL}/review`, { prompt: code });
+
+
+      set({ aiReview: res.data.review || "No review available.", isLoadingReview: false });
+    } catch (error) {
+      console.error("Failed to get AI review:", error);
+      set({
+        aiReview: `Error: ${error.response?.data?.error || "Unable to fetch AI review."}`,
+        isLoadingReview: false
+      });
+    }
+  },
+
+
+  saveCode: async () => {
+    try {
+      const { code, aiReview } = useCodeStore.getState();
+      await axios.post(`${API_BASE_URL}/save-code`, { code, review: aiReview });
+      alert("Code saved successfully!");
+    } catch (error) {
+      console.error("Failed to save code:", error);
+    }
+  },
 }));
 
 export default useCodeStore;
