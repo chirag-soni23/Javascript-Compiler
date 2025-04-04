@@ -8,6 +8,7 @@ const History = () => {
   const [savedCodes, setSavedCodes] = useState([]);
   const [editingCode, setEditingCode] = useState(null);
   const [editedContent, setEditedContent] = useState("");
+  const [codeTitles, setCodeTitles] = useState({});
   const navigate = useNavigate();
   const { deleteCode, updateCode } = useCodeStore();
 
@@ -18,6 +19,21 @@ const History = () => {
           "http://localhost:5000/api/saved-codes"
         );
         setSavedCodes(response.data);
+
+        const titles = {};
+        for (let code of response.data) {
+          try {
+            const titleResponse = await axios.post(
+              "http://localhost:5000/api/generate-title",
+              { code: code.code }
+            );
+            titles[code._id] = titleResponse.data.title;
+          } catch (error) {
+            console.error("Error generating title:", error);
+            titles[code._id] = "Untitled Code"; 
+          }
+        }
+        setCodeTitles(titles);
       } catch (error) {
         console.error("Error fetching saved codes:", error);
       }
@@ -32,6 +48,11 @@ const History = () => {
     try {
       await deleteCode(id);
       setSavedCodes((prev) => prev.filter((code) => code._id !== id));
+      setCodeTitles((prev) => {
+        const newTitles = { ...prev };
+        delete newTitles[id];
+        return newTitles;
+      });
     } catch (error) {
       console.error("Failed to delete code:", error);
     }
@@ -53,6 +74,15 @@ const History = () => {
         )
       );
       setEditingCode(null);
+
+      const titleResponse = await axios.post(
+        "http://localhost:5000/api/generate-title",
+        { code: editedContent }
+      );
+      setCodeTitles((prev) => ({
+        ...prev,
+        [editingCode._id]: titleResponse.data.title,
+      }));
     } catch (error) {
       console.error("Failed to update code:", error);
     }
@@ -73,31 +103,36 @@ const History = () => {
       ) : (
         <ul className="space-y-4">
           {savedCodes.map((code) => (
-            <li
-              key={code._id}
-              className="bg-gray-800 p-4 rounded border border-gray-700"
-            >
-              <pre className="whitespace-pre-wrap">{code.code}</pre>
-              <p className="text-gray-400 text-sm">
-                Saved on: {new Date(code.createdAt).toLocaleString()}
-              </p>
+  <li
+    key={code._id}
+    className="bg-gray-800 p-4 rounded border border-gray-700"
+  >
+   
+    <h3 className="text-xl font-bold text-blue-400 mb-2">
+      {codeTitles[code._id] ? codeTitles[code._id] : "Title loading..."}
+    </h3>
+    <pre className="whitespace-pre-wrap">{code.code}</pre>
+    <p className="text-gray-400 text-sm">
+      Saved on: {new Date(code.createdAt).toLocaleString()}
+    </p>
 
-              <div className="mt-2 flex gap-2">
-                <button
-                  onClick={() => handleEdit(code)}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
-                >
-                  Edit Code
-                </button>
-                <button
-                  onClick={() => handleDelete(code._id)}
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                >
-                  Delete Code
-                </button>
-              </div>
-            </li>
-          ))}
+    <div className="mt-2 flex gap-2">
+      <button
+        onClick={() => handleEdit(code)}
+        className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+      >
+        Edit Code
+      </button>
+      <button
+        onClick={() => handleDelete(code._id)}
+        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+      >
+        Delete Code
+      </button>
+    </div>
+  </li>
+))}
+
         </ul>
       )}
 

@@ -73,13 +73,22 @@ Your goal is to help developers **write clean, optimized, and secure JavaScript 
 `,
 });
 
-const generateContent = async (prompt) => {
-  try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-  } catch (error) {
-    console.error("Error fetching AI review:", error);
-    return "Error: Unable to fetch AI review.";
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const generateContent = async (prompt, maxRetries = 3, delayMs = 30000) => {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    } catch (error) {
+      if (error.status === 429 && attempt < maxRetries - 1) {
+        console.log(`Rate limit exceeded. Retrying in ${delayMs / 1000} seconds...`);
+        await delay(delayMs);
+      } else {
+        console.error("Error fetching AI review:", error);
+        return "Error: Unable to fetch AI review.";
+      }
+    }
   }
 };
 
