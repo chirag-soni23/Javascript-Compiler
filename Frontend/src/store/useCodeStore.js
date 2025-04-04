@@ -2,7 +2,7 @@ import { create } from "zustand";
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:5000/api";
-const FONT_SIZE_KEY = "editorFontSize"; 
+const FONT_SIZE_KEY = "editorFontSize";
 
 const useCodeStore = create((set) => ({
   code: "",
@@ -74,12 +74,17 @@ const useCodeStore = create((set) => ({
     try {
       const res = await axios.post(`${API_BASE_URL}/review`, { prompt: code });
 
-      set({ aiReview: res.data.review || "No review available.", isLoadingReview: false });
+      set({
+        aiReview: res.data.review || "No review available.",
+        isLoadingReview: false,
+      });
     } catch (error) {
       console.error("Failed to get AI review:", error);
       set({
-        aiReview: `Error: ${error.response?.data?.error || "Unable to fetch AI review."}`,
-        isLoadingReview: false
+        aiReview: `Error: ${
+          error.response?.data?.error || "Unable to fetch AI review."
+        }`,
+        isLoadingReview: false,
       });
     }
   },
@@ -87,7 +92,10 @@ const useCodeStore = create((set) => ({
   saveCode: async () => {
     try {
       const { code, aiReview } = useCodeStore.getState();
-      const res = await axios.post(`${API_BASE_URL}/save-code`, { code, review: aiReview });
+      const res = await axios.post(`${API_BASE_URL}/save-code`, {
+        code,
+        review: aiReview,
+      });
       alert("Code saved successfully!");
       set((state) => ({ savedCodes: [...state.savedCodes, res.data] }));
     } catch (error) {

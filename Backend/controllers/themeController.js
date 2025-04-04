@@ -1,6 +1,6 @@
 import Theme from "../models/Theme.js";
 
-// Get the latest theme
+// Get the theme
 export const getTheme = async (req, res) => {
   try {
     const theme = await Theme.findOne().sort({ _id: -1 });
@@ -10,7 +10,7 @@ export const getTheme = async (req, res) => {
   }
 };
 
-// Update theme (or create if not exists)
+// Update theme
 export const updateTheme = async (req, res) => {
   try {
     const { theme } = req.body;
@@ -18,7 +18,7 @@ export const updateTheme = async (req, res) => {
       return res.status(400).json({ error: "Invalid theme" });
     }
 
-    await Theme.deleteMany(); // Keep only the latest theme
+    await Theme.deleteMany();
     const newTheme = new Theme({ theme });
     await newTheme.save();
 

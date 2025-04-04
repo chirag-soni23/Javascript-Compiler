@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-dotenv.config()
+dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_KEY);
 
@@ -73,7 +73,6 @@ Your goal is to help developers **write clean, optimized, and secure JavaScript 
 `,
 });
 
-// Function to Generate AI Review for JavaScript Code
 const generateContent = async (prompt) => {
   try {
     const result = await model.generateContent(prompt);

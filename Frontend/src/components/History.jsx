@@ -14,7 +14,9 @@ const History = () => {
   useEffect(() => {
     const fetchSavedCodes = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/saved-codes");
+        const response = await axios.get(
+          "http://localhost:5000/api/saved-codes"
+        );
         setSavedCodes(response.data);
       } catch (error) {
         console.error("Error fetching saved codes:", error);
@@ -71,9 +73,14 @@ const History = () => {
       ) : (
         <ul className="space-y-4">
           {savedCodes.map((code) => (
-            <li key={code._id} className="bg-gray-800 p-4 rounded border border-gray-700">
+            <li
+              key={code._id}
+              className="bg-gray-800 p-4 rounded border border-gray-700"
+            >
               <pre className="whitespace-pre-wrap">{code.code}</pre>
-              <p className="text-gray-400 text-sm">Saved on: {new Date(code.createdAt).toLocaleString()}</p>
+              <p className="text-gray-400 text-sm">
+                Saved on: {new Date(code.createdAt).toLocaleString()}
+              </p>
 
               <div className="mt-2 flex gap-2">
                 <button

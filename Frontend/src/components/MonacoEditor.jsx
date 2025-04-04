@@ -49,7 +49,8 @@ const MonacoEditor = () => {
 
       <div className="flex flex-wrap items-center gap-3 justify-center mb-4">
         <div className="flex flex-col md:flex-row items-center gap-2">
-          <Link to={'/history'}
+          <Link
+            to={"/history"}
             className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded"
           >
             Save History

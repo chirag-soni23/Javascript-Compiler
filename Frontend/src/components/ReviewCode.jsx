@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 const ReviewCode = () => {
   const { aiReview, reviewCode, code } = useCodeStore();
   const [documentation, setDocumentation] = useState("");
-  const [loading, setLoading] = useState(false);  
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleGenerateDocs = async () => {
@@ -15,27 +15,31 @@ const ReviewCode = () => {
       return;
     }
 
-    setLoading(true);  
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/generate-documentation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }), 
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/generate-documentation",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        }
+      );
 
       const result = await response.json();
-      setDocumentation(result.documentation); 
+      setDocumentation(result.documentation);
     } catch (error) {
       console.error("Error generating documentation:", error);
       alert("Failed to generate documentation.");
     } finally {
-      setLoading(false);  
+      setLoading(false);
     }
   };
 
   const handleCopy = () => {
     if (documentation) {
-      navigator.clipboard.writeText(documentation)
+      navigator.clipboard
+        .writeText(documentation)
         .then(() => alert("Documentation copied to clipboard"))
         .catch((err) => alert("Failed to copy documentation: " + err));
     } else {
@@ -45,7 +49,9 @@ const ReviewCode = () => {
 
   const handleDownload = () => {
     if (documentation) {
-      const blob = new Blob([documentation], { type: "text/plain;charset=utf-8" });
+      const blob = new Blob([documentation], {
+        type: "text/plain;charset=utf-8",
+      });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = "documentation.txt";
@@ -57,7 +63,9 @@ const ReviewCode = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-6">
-      <h2 className="text-3xl font-bold mb-6 text-center">AI Code Review & Documentation</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center">
+        AI Code Review & Documentation
+      </h2>
 
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         <button
@@ -85,7 +93,9 @@ const ReviewCode = () => {
         {aiReview ? (
           <ReactMarkdown>{aiReview}</ReactMarkdown>
         ) : (
-          <p className="text-gray-400 text-center">No review available. Click "Get Review" to fetch AI feedback.</p>
+          <p className="text-gray-400 text-center">
+            No review available. Click "Get Review" to fetch AI feedback.
+          </p>
         )}
       </div>
 
@@ -94,11 +104,13 @@ const ReviewCode = () => {
         {documentation ? (
           <ReactMarkdown>{documentation}</ReactMarkdown>
         ) : (
-          <p className="text-gray-400 text-center">No documentation available. Click "Generate Documentation" to fetch it.</p>
+          <p className="text-gray-400 text-center">
+            No documentation available. Click "Generate Documentation" to fetch
+            it.
+          </p>
         )}
       </div>
 
-      {/* Buttons for Copy and Download */}
       <div className="flex flex-wrap justify-center gap-3 mt-6">
         <button
           onClick={handleCopy}
