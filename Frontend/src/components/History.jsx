@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useCodeStore from "../store/useCodeStore";
+import MonacoEditor from "@monaco-editor/react";
 
 const History = () => {
   const [savedCodes, setSavedCodes] = useState([]);
+  const [editingCode, setEditingCode] = useState(null);
+  const [editedContent, setEditedContent] = useState("");
   const navigate = useNavigate();
-  const { deleteCode } = useCodeStore();
+  const { deleteCode, updateCode } = useCodeStore();
 
   useEffect(() => {
     const fetchSavedCodes = async () => {
@@ -22,14 +25,34 @@ const History = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this code?");
-    if (!confirmDelete) return;
+    if (!window.confirm("Are you sure you want to delete this code?")) return;
 
     try {
       await deleteCode(id);
-      setSavedCodes((prevCodes) => prevCodes.filter((code) => code._id !== id));
+      setSavedCodes((prev) => prev.filter((code) => code._id !== id));
     } catch (error) {
       console.error("Failed to delete code:", error);
+    }
+  };
+
+  const handleEdit = (code) => {
+    setEditingCode(code);
+    setEditedContent(code.code);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingCode) return;
+
+    try {
+      await updateCode(editingCode._id, editedContent, editingCode.review);
+      setSavedCodes((prev) =>
+        prev.map((code) =>
+          code._id === editingCode._id ? { ...code, code: editedContent } : code
+        )
+      );
+      setEditingCode(null);
+    } catch (error) {
+      console.error("Failed to update code:", error);
     }
   };
 
@@ -52,15 +75,54 @@ const History = () => {
               <pre className="whitespace-pre-wrap">{code.code}</pre>
               <p className="text-gray-400 text-sm">Saved on: {new Date(code.createdAt).toLocaleString()}</p>
 
-              <button
-                onClick={() => handleDelete(code._id)}
-                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded mt-2"
-              >
-                Delete Code
-              </button>
+              <div className="mt-2 flex gap-2">
+                <button
+                  onClick={() => handleEdit(code)}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                >
+                  Edit Code
+                </button>
+                <button
+                  onClick={() => handleDelete(code._id)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                >
+                  Delete Code
+                </button>
+              </div>
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Monaco Editor Modal */}
+      {editingCode && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
+          <div className="bg-gray-900 p-6 rounded-lg w-full max-w-4xl">
+            <h2 className="text-xl font-bold mb-2">Edit Code</h2>
+            <MonacoEditor
+              height="400px"
+              language="javascript"
+              theme="vs-dark"
+              value={editedContent}
+              onChange={(newValue) => setEditedContent(newValue)}
+              options={{ fontSize: 14, minimap: { enabled: false } }}
+            />
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={handleSaveEdit}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+              >
+                Save Changes
+              </button>
+              <button
+                onClick={() => setEditingCode(null)}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
