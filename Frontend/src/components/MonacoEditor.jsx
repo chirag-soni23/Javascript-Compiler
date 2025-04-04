@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import useCodeStore from "../store/useCodeStore";
@@ -7,12 +7,30 @@ const MonacoEditor = () => {
   const navigate = useNavigate();
   const { 
     code, setCode, output, runCode, clearOutput, 
-    theme, setTheme, fontSize, increaseFontSize, decreaseFontSize, fetchTheme, saveCode 
+    theme, setTheme, fontSize, increaseFontSize, decreaseFontSize, fetchTheme ,saveCode
   } = useCodeStore();
 
+  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+
   useEffect(() => {
-    fetchTheme(); 
+    fetchTheme();
   }, []);
+
+  // Enable save button only when code is typed
+  useEffect(() => {
+    setIsSaveDisabled(!code.trim());
+  }, [code]);
+
+  // Save confirmation before saving the code
+
+
+const handleSaveCode = async () => {
+  const confirmSave = window.confirm("Are you sure you want to save the code?");
+  if (confirmSave) {
+    await saveCode();
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 md:p-6">
@@ -99,8 +117,13 @@ const MonacoEditor = () => {
           Review Code
         </button>
         <button 
-          onClick={saveCode} 
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+          onClick={handleSaveCode} 
+          className={`font-bold py-2 px-4 rounded ${
+            isSaveDisabled 
+              ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600 text-white"
+          }`}
+          disabled={isSaveDisabled}
         >
           Save Code
         </button>
