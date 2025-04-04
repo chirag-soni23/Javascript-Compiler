@@ -6,31 +6,33 @@ import { useNavigate } from "react-router-dom";
 const ReviewCode = () => {
   const { aiReview, reviewCode, code } = useCodeStore();
   const [documentation, setDocumentation] = useState("");
+  const [loading, setLoading] = useState(false);  
   const navigate = useNavigate();
 
-  // Function to fetch AI-generated documentation
   const handleGenerateDocs = async () => {
     if (!code.trim()) {
       alert("Please write some code first.");
       return;
     }
 
+    setLoading(true);  
     try {
       const response = await fetch("http://localhost:5000/api/generate-documentation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),  // Send the current code for documentation generation
+        body: JSON.stringify({ code }), 
       });
 
       const result = await response.json();
-      setDocumentation(result.documentation);  // Set the generated documentation
+      setDocumentation(result.documentation); 
     } catch (error) {
       console.error("Error generating documentation:", error);
       alert("Failed to generate documentation.");
+    } finally {
+      setLoading(false);  
     }
   };
 
-  // Function to copy documentation to clipboard
   const handleCopy = () => {
     if (documentation) {
       navigator.clipboard.writeText(documentation)
@@ -41,7 +43,6 @@ const ReviewCode = () => {
     }
   };
 
-  // Function to download documentation as a .txt file
   const handleDownload = () => {
     if (documentation) {
       const blob = new Blob([documentation], { type: "text/plain;charset=utf-8" });
@@ -69,7 +70,7 @@ const ReviewCode = () => {
           onClick={handleGenerateDocs}
           className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded"
         >
-          Generate Documentation
+          {loading ? "Generating Documentation..." : "Generate Documentation"}
         </button>
         <button
           onClick={() => navigate("/")}
