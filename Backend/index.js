@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import themeRoutes from "./routes/themeRoutes.js";
+import codeRoutes from "./routes/codeRoutes.js";
 import { connectDB } from "./config/db.js";
 
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(cors());
 // Routes
 app.use("/api", reviewRoutes);
 app.use("/api", themeRoutes);
+app.use("/api", codeRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

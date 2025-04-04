@@ -10,7 +10,7 @@ const useCodeStore = create((set) => ({
   theme: "vs-dark",
   fontSize: parseInt(localStorage.getItem(FONT_SIZE_KEY)) || 14,
   aiReview: "",
-  isLoadingReview: false, // Review loading state
+  isLoadingReview: false, 
 
   setCode: (code) => set({ code }),
 

@@ -42,6 +42,15 @@ const MonacoEditor = () => {
           >-</button>
         </div>
         <span className="text-sm">({fontSize}px)</span>
+
+        {/* 🔹 Added Saved Code History Button */}
+        <button 
+          onClick={() => navigate("/history")} 
+          className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Saved Code History
+        </button>
+
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
