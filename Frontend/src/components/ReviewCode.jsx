@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios"; 
 import useCodeStore from "../store/useCodeStore.js";
 import ReactMarkdown from "react-markdown";
 import { useNavigate } from "react-router-dom";
@@ -17,17 +18,12 @@ const ReviewCode = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/generate-documentation",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code }),
-        }
+      const response = await axios.post(
+        "http://localhost:5000/api/review/generate-documentation",
+        { code }
       );
 
-      const result = await response.json();
-      setDocumentation(result.documentation);
+      setDocumentation(response.data.documentation);
     } catch (error) {
       console.error("Error generating documentation:", error);
       alert("Failed to generate documentation.");

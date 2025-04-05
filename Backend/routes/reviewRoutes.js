@@ -8,7 +8,7 @@ import {
 const router = express.Router();
 
 // Route for reviewing code
-router.post("/review", reviewCode);
+router.post("/reviews", reviewCode);
 
 // Route for generating documentation
 router.post("/generate-documentation", generateDocumentation);

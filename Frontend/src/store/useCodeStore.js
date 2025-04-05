@@ -31,7 +31,7 @@ const useCodeStore = create((set) => ({
 
   fetchTheme: async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/theme`);
+      const res = await axios.get(`${API_BASE_URL}/theme/get-theme`);
       if (res.data.theme) set({ theme: res.data.theme });
     } catch (error) {
       console.error("Failed to fetch theme:", error);
@@ -41,7 +41,7 @@ const useCodeStore = create((set) => ({
   setTheme: async (theme) => {
     set({ theme });
     try {
-      await axios.post(`${API_BASE_URL}/theme`, { theme });
+      await axios.post(`${API_BASE_URL}/theme/set-theme`, { theme });
     } catch (error) {
       console.error("Failed to update theme:", error);
     }
@@ -72,7 +72,7 @@ const useCodeStore = create((set) => ({
     set({ aiReview: "Reviewing code...", isLoadingReview: true });
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/review`, { prompt: code });
+      const res = await axios.post(`${API_BASE_URL}/review/reviews`, { prompt: code });
 
       set({
         aiReview: res.data.review || "No review available.",
@@ -92,7 +92,7 @@ const useCodeStore = create((set) => ({
   saveCode: async () => {
     try {
       const { code, aiReview } = useCodeStore.getState();
-      const res = await axios.post(`${API_BASE_URL}/save-code`, {
+      const res = await axios.post(`${API_BASE_URL}/codes/save-code`, {
         code,
         review: aiReview,
       });
@@ -103,18 +103,18 @@ const useCodeStore = create((set) => ({
     }
   },
 
-  fetchSavedCodes: async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/code-review`);
-      set({ savedCodes: res.data });
-    } catch (error) {
-      console.error("Failed to fetch saved codes:", error);
-    }
-  },
+  // fetchSavedCodes: async () => {
+  //   try {
+  //     const res = await axios.get(`${API_BASE_URL}/codes/code-review`);
+  //     set({ savedCodes: res.data });
+  //   } catch (error) {
+  //     console.error("Failed to fetch saved codes:", error);
+  //   }
+  // },
 
   deleteCode: async (id) => {
     try {
-      await axios.delete(`${API_BASE_URL}/code-review/${id}`);
+      await axios.delete(`${API_BASE_URL}/codes/delete-code-review/${id}`);
       set((state) => ({
         savedCodes: state.savedCodes.filter((code) => code._id !== id),
       }));
@@ -126,7 +126,7 @@ const useCodeStore = create((set) => ({
 
   updateCode: async (id, updatedCode, updatedReview) => {
     try {
-      const res = await axios.put(`${API_BASE_URL}/code-review/${id}`, {
+      const res = await axios.put(`${API_BASE_URL}/codes/code-review/${id}`, {
         code: updatedCode,
         review: updatedReview,
       });
