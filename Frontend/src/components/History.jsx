@@ -9,6 +9,9 @@ const History = () => {
   const [editingCode, setEditingCode] = useState(null);
   const [editedContent, setEditedContent] = useState("");
   const [codeTitles, setCodeTitles] = useState({});
+  const [expandedCodes, setExpandedCodes] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+
   const navigate = useNavigate();
   const { deleteCode, updateCode } = useCodeStore();
 
@@ -30,7 +33,7 @@ const History = () => {
             titles[code._id] = titleResponse.data.title;
           } catch (error) {
             console.error("Error generating title:", error);
-            titles[code._id] = "Untitled Code"; 
+            titles[code._id] = "Untitled Code";
           }
         }
         setCodeTitles(titles);
@@ -88,6 +91,18 @@ const History = () => {
     }
   };
 
+  const toggleExpand = (id) => {
+    setExpandedCodes((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const filteredCodes = savedCodes.filter((code) => {
+    const title = codeTitles[code._id] || "";
+    return title.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">
       <h2 className="text-2xl font-bold mb-4">Saved Code History</h2>
@@ -98,41 +113,61 @@ const History = () => {
         Home
       </button>
 
-      {savedCodes.length === 0 ? (
+      <input
+        type="text"
+        placeholder="Search by title..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4 p-2 rounded  text-white border ml-10"
+      />
+
+      {filteredCodes.length === 0 ? (
         <p>No saved code found.</p>
       ) : (
         <ul className="space-y-4">
-          {savedCodes.map((code) => (
-  <li
-    key={code._id}
-    className="bg-gray-800 p-4 rounded border border-gray-700"
-  >
-   
-    <h3 className="text-xl font-bold text-blue-400 mb-2">
-      {codeTitles[code._id] ? codeTitles[code._id] : "Title loading..."}
-    </h3>
-    <pre className="whitespace-pre-wrap">{code.code}</pre>
-    <p className="text-gray-400 text-sm">
-      Saved on: {new Date(code.createdAt).toLocaleString()}
-    </p>
+          {filteredCodes.map((code) => (
+            <li
+              key={code._id}
+              className="bg-gray-800 p-4 rounded border border-gray-700"
+            >
+              <h3 className="text-xl font-bold text-blue-400 mb-2">
+                {codeTitles[code._id] || "Title loading..."}
+              </h3>
+              <pre className="whitespace-pre-wrap">
+                {expandedCodes[code._id]
+                  ? code.code
+                  : code.code.length > 300
+                  ? code.code.slice(0, 300) + "..."
+                  : code.code}
+              </pre>
+              {code.code.length > 300 && (
+                <button
+                  onClick={() => toggleExpand(code._id)}
+                  className="text-blue-400 text-sm hover:underline mt-1"
+                >
+                  {expandedCodes[code._id] ? "Show Less" : "Show More"}
+                </button>
+              )}
+              <p className="text-gray-400 text-sm mt-2">
+                Saved on: {new Date(code.createdAt).toLocaleString()}
+              </p>
 
-    <div className="mt-2 flex gap-2">
-      <button
-        onClick={() => handleEdit(code)}
-        className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
-      >
-        Edit Code
-      </button>
-      <button
-        onClick={() => handleDelete(code._id)}
-        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-      >
-        Delete Code
-      </button>
-    </div>
-  </li>
-))}
-
+              <div className="mt-2 flex gap-2">
+                <button
+                  onClick={() => handleEdit(code)}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                >
+                  Edit Code
+                </button>
+                <button
+                  onClick={() => handleDelete(code._id)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                >
+                  Delete Code
+                </button>
+              </div>
+            </li>
+          ))}
         </ul>
       )}
 
