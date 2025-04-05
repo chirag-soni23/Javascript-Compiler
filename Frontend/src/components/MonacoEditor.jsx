@@ -25,6 +25,10 @@ const MonacoEditor = () => {
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
   useEffect(() => {
+    const savedCode = localStorage.getItem("userCode");
+    if (savedCode) {
+      setCode(savedCode);
+    }
     fetchTheme();
   }, []);
 
@@ -39,6 +43,17 @@ const MonacoEditor = () => {
     if (confirmSave) {
       await saveCode();
     }
+  };
+
+  const handleCodeChange = (value) => {
+    const newCode = value || "";
+    setCode(newCode);
+    localStorage.setItem("userCode", newCode);
+  };
+
+  const clearCode = () => {
+    setCode("");
+    localStorage.removeItem("userCode");
   };
 
   return (
@@ -104,7 +119,7 @@ const MonacoEditor = () => {
             defaultLanguage="javascript"
             value={code}
             theme={theme}
-            onChange={(value) => setCode(value || "")}
+            onChange={handleCodeChange}
             options={{ fontSize, wordWrap: "on" }}
           />
         </ResizableBox>
@@ -130,18 +145,28 @@ const MonacoEditor = () => {
         >
           Run
         </button>
+
         <button
-          onClick={clearOutput}
+          onClick={clearCode}
           className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
         >
-          Clear
+          Clear Code
         </button>
+
+        <button
+          onClick={clearOutput}
+          className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Clear Output
+        </button>
+
         <button
           onClick={() => navigate("/review")}
           className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded"
         >
           Review Code
         </button>
+
         <button
           onClick={handleSaveCode}
           className={`font-bold py-2 px-4 rounded ${
