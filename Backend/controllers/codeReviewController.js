@@ -1,4 +1,4 @@
-import CodeReview from "../models/CodeReview.js";
+import CodeReview from "../models/codeReview.js";
 
 // Save Code Review
 export const saveCodeReview = async (req, res) => {
