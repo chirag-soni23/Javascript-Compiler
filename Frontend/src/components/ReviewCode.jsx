@@ -19,7 +19,7 @@ const ReviewCode = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/review/generate-documentation",
+        "https://javascript-compiler-kmkw.onrender.com/api/review/generate-documentation",
         { code }
       );
 

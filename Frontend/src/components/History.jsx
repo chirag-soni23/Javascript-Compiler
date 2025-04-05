@@ -19,7 +19,7 @@ const History = () => {
     const fetchSavedCodes = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/codes/saved-codes"
+          "https://javascript-compiler-kmkw.onrender.com/api/codes/saved-codes"
         );
         setSavedCodes(response.data);
 
@@ -27,7 +27,7 @@ const History = () => {
         for (let code of response.data) {
           try {
             const titleResponse = await axios.post(
-              "http://localhost:5000/api/review/generate-title",
+              "https://javascript-compiler-kmkw.onrender.com/api/review/generate-title",
               { code: code.code }
             );
             titles[code._id] = titleResponse.data.title;
@@ -79,7 +79,7 @@ const History = () => {
       setEditingCode(null);
 
       const titleResponse = await axios.post(
-        "http://localhost:5000/api/review/generate-title",
+        "https://javascript-compiler-kmkw.onrender.com/api/review/generate-title",
         { code: editedContent }
       );
       setCodeTitles((prev) => ({
